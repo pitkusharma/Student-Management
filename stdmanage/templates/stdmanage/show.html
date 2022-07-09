@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!--Bootstrap-->
+  <!-- CSS only -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-0evHe/X+R7YkIZDRvuzKMRqM+OrBnVFBL6DOitfPri4tjfHxaWutUpFmBp4vmVor" crossorigin="anonymous">
+  <!-- JavaScript Bundle with Popper -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha384-pprn3073KE6tl6bjs2QrFaJGz5/SUsLqktiwsUTF55Jfv3qYSDhgCecCxMW52nD2" crossorigin="anonymous"></script>
+  <title>Show Students</title>
+</head>
+<body>
+
+  <div class="container">
+    <h3>All Students</h3>
+    
+    <div class="row">
+      <div class="col-md-6 col-sm-12">
+        <table class="table table-striped table-bordered">
+          <thead class="table-dark">
+            <tr>
+              <th>
+                Student ID
+              </th>
+              <th>
+                Name
+              </th>
+              <th>
+                Class
+              </th>
+              <th>
+                Address
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for student in allStudents %}
+              <tr>
+                <td>
+                  {{student.id}}
+                </td>
+                <td>
+                  {{student.fullName}}
+                </td>
+                <td>
+                  {{student.selectClass}}
+                </td>
+                <td>
+                  {{student.homeAddress}}
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+    
+        </table>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col">
+        <nav aria-label="Page navigation example">
+          <ul class="pagination">
+            <li class="page-item">
+              <a class="page-link" href="#" aria-label="Previous">
+                <span aria-hidden="true">&laquo;</span>
+              </a>
+            </li>
+            <li class="page-item"><a class="page-link" href="#">1</a></li>
+            <li class="page-item"><a class="page-link" href="#">2</a></li>
+            <li class="page-item"><a class="page-link" href="#">3</a></li>
+            <li class="page-item">
+              <a class="page-link" href="#" aria-label="Next">
+                <span aria-hidden="true">&raquo;</span>
+              </a>
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+
+
+    
+  </div>
+
+</body>
+</html>
