@@ -1,10 +1,10 @@
 from django.urls import path 
-from . import views
+from .views import *
 
 app_name = 'stdmanage'
 urlpatterns = [
-    path('', views.index, name = 'index'),
-    path('add/', views.add, name = 'add'),
-    path('register', views.register, name= 'register'),
-    path('show', views.show, name= 'show'),
+    path('', IndexView.as_view(), name = 'index'),
+    path('student-create', StudentCreateView.as_view(), name = 'student-create'),
+    path('student-list', StudentListView.as_view(), name = 'student-list'),
+    
 ]

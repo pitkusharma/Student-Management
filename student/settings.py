@@ -26,7 +26,10 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'stdmanage.apps.StdmanageConfig',
+    'crispy_forms' # for form styling
 ]
+
+CRISPY_TEMPLATE_PACK = 'bootstrap4' # crispy forms required constant
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

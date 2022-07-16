@@ -13,6 +13,7 @@
 </head>
 <body>
 
+
   <div class="container">
     <h3>All Students</h3>
     
@@ -36,19 +37,19 @@
             </tr>
           </thead>
           <tbody>
-            {% for student in allStudents %}
+            {% for student in student_list %}
               <tr>
                 <td>
                   {{student.id}}
                 </td>
                 <td>
-                  {{student.fullName}}
+                  {{student.full_name}}
                 </td>
                 <td>
-                  {{student.selectClass}}
+                  {{student.reading_class}}
                 </td>
                 <td>
-                  {{student.homeAddress}}
+                  {{student.home_address}}
                 </td>
               </tr>
             {% endfor %}
@@ -83,6 +84,7 @@
 
     
   </div>
+
 
 </body>
 </html>
