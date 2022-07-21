@@ -1,10 +1,10 @@
-from django.forms import DateInput, ModelForm
 from django import forms
 
-from .models import Student
+from .models import *
 
 
-class StudentForm(ModelForm):
+class StudentForm(forms.ModelForm):
+    
     class Meta:
         model = Student
         fields = '__all__'
@@ -23,6 +23,7 @@ class StudentForm(ModelForm):
         }
         widgets = {
             'date_of_birth': forms.DateInput( attrs={'type': 'date',} ),
+            'home_address': forms.Textarea( attrs={'cols': '20', 'rows': '5'} ),
         }
         labels = {
             'full_name': 'Enter full name of the student',
@@ -32,5 +33,16 @@ class StudentForm(ModelForm):
         }
         error_messages = {
 
+        }
+
+
+class ExamForm(forms.ModelForm):
+    
+    class Meta:
+        model = Exam
+        fields = ('__all__')
+        widgets = {
+            'date': forms.SelectDateWidget,
+            'description': forms.Textarea(attrs={'rows': '5'})
         }
 

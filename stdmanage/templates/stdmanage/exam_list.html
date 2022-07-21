@@ -1,10 +1,10 @@
 {% extends 'stdmanage/base.html' %}
     
-  {% block title %}All Students{% endblock title %}
+  {% block title %}All Exams{% endblock title %}
   {% block body %}
     
   <div class="container">
-    <h3>All Students</h3>
+    <h3>All Exams</h3>
     
     <div class="row">
       <div class="col-md-6 col-sm-12">
@@ -12,33 +12,27 @@
           <thead class="table-dark">
             <tr>
               <th>
-                Student ID
+                Exam ID
               </th>
               <th>
-                Name
+                Exam Name
               </th>
               <th>
-                Class
-              </th>
-              <th>
-                Address
+                Exam Date
               </th>
             </tr>
           </thead>
           <tbody>
-            {% for student in student_list %}
+            {% for exam in exam_list %}
               <tr>
                 <td>
-                  {{student.id}}
+                  {{exam.id}}
                 </td>
                 <td>
-                  <a href="{%url 'stdmanage:student-detail' student.id%}">{{student.full_name}}</a>
+                  <a href="{%url 'stdmanage:exam-detail' exam.id%}">{{exam.name}}</a>
                 </td>
                 <td>
-                  {{student.reading_class}}
-                </td>
-                <td>
-                  {{student.home_address}}
+                  {{exam.date}}
                 </td>
               </tr>
             {% endfor %}

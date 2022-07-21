@@ -2,14 +2,20 @@ from django.db import models
 from django.urls import reverse
 
 
+class ReadingClass(models.Model):
+
+    name = models.CharField(max_length=20)
+
+    def __str__(self):
+        return self.name
+
+    # def get_absolute_url(self):
+    #     return reverse("ReadingClass_detail", kwargs={"pk": self.pk})
+
+
+
 class Student(models.Model):
-    READING_CLASS_CHOICES = [
-        ('eight', 'Eight'),
-        ('nine', 'Nine'),
-        ('ten', 'Ten'),
-        ('eleven', 'Eleven'),
-        ('tweleve', 'Tweleve')
-    ]
+      
     GENDER = [
         ('male', 'Male'),
         ('female', 'Female'),
@@ -18,12 +24,53 @@ class Student(models.Model):
     full_name = models.CharField(max_length=60)
     gender = models.CharField(max_length=10, default='male', choices=GENDER)
     date_of_birth = models.DateField(null=True, blank=True, )
-    reading_class = models.CharField(max_length=20, choices=READING_CLASS_CHOICES )
-    phone_number = models.CharField(max_length=15)
+    reading_class = models.ForeignKey(ReadingClass, on_delete=models.CASCADE)
+    phone_number = models.CharField(max_length=20)
     home_address = models.CharField(max_length=200, null= True, blank=True, )
+    photo = models.FileField(upload_to='student_photos', null=True)
 
     def get_absolute_url(self):
-        return reverse('student-detail', kwargs={'pk': self.pk})
+        return reverse('stdmanage:student-detail', kwargs={'pk': self.pk})
 
     def __str__(self):
         return self.full_name
+
+
+class Exam(models.Model):
+    
+    name = models.CharField(max_length=50)
+    description = models.CharField(max_length=200)
+    date = models.DateField()
+    question_papers = models.FileField(upload_to='question_papers', null=True, blank=True )
+    
+    def __str__(self):
+        return self.name
+
+    def get_absolute_url(self):
+        return reverse("Exam_detail", kwargs={"pk": self.pk})
+
+
+class Subject(models.Model):
+
+    name = models.CharField(max_length=20)
+
+    def __str__(self):
+        return self.name
+
+    # def get_absolute_url(self):
+    #     return reverse("Subject_detail", kwargs={"pk": self.pk})
+
+
+class ExamSubmission(models.Model):
+
+    score = models.CharField(max_length=10)
+    answer_sheet = models.FileField(upload_to='answer_sheets')
+    student = models.ForeignKey(Student, on_delete=models.CASCADE)
+    subject = models.ForeignKey(Subject, on_delete=models.CASCADE)
+    exam = models.ForeignKey(Exam, on_delete=models.CASCADE)
+    
+    def __str__(self):
+        return self.student.full_name + "'s score"
+
+    # def get_absolute_url(self):
+    #     return reverse("Score_detail", kwargs={"pk": self.pk})

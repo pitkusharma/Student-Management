@@ -1,0 +1,53 @@
+{% extends 'stdmanage/base.html' %}
+    
+    {% block title %}Student List{% endblock title %}
+    {% block body %}
+    <div class="container">
+        <div class="row">
+            <div class="col-12 col-md-8 p-4 ">
+                <h2 class="text-capitalize">{{student_detail.full_name}}</h2>
+                <div class="row">
+                    <div class="col-4 col-md-3">
+                        <span class="fw-bold">Class: </span>
+                    </div>
+                    <div class="col-8 col-md-6">
+                        {{student_detail.reading_class}}
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-4 col-md-3">
+                        <span class="fw-bold">Date of birth: </span>
+                    </div>
+                    <div class="col-8 col-md-6">
+                        {{student_detail.date_of_birth}}
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-4 col-md-3">
+                        <span class="fw-bold">Phone: </span>
+                    </div>
+                    <div class="col-8 col-md-6">
+                        {{student_detail.phone_number}}
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-4 col-md-3">
+                        <span class="fw-bold">Address: </span>
+                    </div>
+                    <div class="col-8 col-md-6">
+                        {{student_detail.home_address}}
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-md-4 p-4 ">
+                <img src="{{ student_detail.photo.url }}" class="img-fluid img-thumbnail" srcset="">
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12 col-md-8">
+                <a href="{%url "stdmanage:student-update" student_detail.id%}"><button class="btn btn-secondary">Update</button></a>
+                <a href="{%url "stdmanage:student-delete" student_detail.id%}"><button class="btn btn-danger">Delete</button></a>
+            </div>
+        </div>
+    </div>
+    {% endblock body %}
