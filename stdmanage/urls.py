@@ -9,7 +9,9 @@ urlpatterns = [
     path('student-update/<int:pk>/', StudentUpdateView.as_view(), name = 'student-update'),
     path('student-delete/<int:pk>/', StudentDeleteView.as_view(), name = 'student-delete'),
     path('student-detail/<int:pk>/', StudentDetailView.as_view(), name = 'student-detail'),
-    path('student-list/', StudentListView.as_view(), name = 'student-list'),
+    # path('student-list/', StudentListView.as_view(), name = 'student-list'),
+    path('student-list/<str:reading_class>/<int:row_limit>/<int:page_no>', 
+        StudentListView.as_view(), name = 'student-list'),
 
     path('exam-create/', ExamCreateView.as_view(), name='exam-create'),
     path('exam-update/<int:pk>', ExamUpdateView.as_view(), name='exam-update'),
