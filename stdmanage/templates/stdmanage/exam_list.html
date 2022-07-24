@@ -4,7 +4,34 @@
   {% block body %}
     
   <div class="container">
-    <h3>All Exams</h3>
+    <div class="row">
+      <div class="col-12 col-md-8">
+        <h3>All Exams</h3> 
+      </div>
+    </div>
+    
+    <form action="{%url 'stdmanage:exam-list-basic' %}" method="post">
+      {% csrf_token %}
+      <div class="row my-1">
+        
+        <div class="col-5 col-md-3">
+          <select name="row_limit" default='5' class="form-select" aria-label="Default select example">
+            <option selected value = "{{row_limit}}" >{{row_limit}}</option>
+            <option value="3">3</option>
+            <option value="5">5</option>
+            <option value="10">10</option>
+            <option value="20">20</option>
+            <option value="30">30</option>
+            <option value="50">50</option>
+          </select>
+        </div>
+        
+        <div class="col-2 col-md-2">
+          <button class="btn btn-secondary">Set Params</button>
+        </div>
+             
+      </div>
+    </form> 
     
     <div class="row">
       <div class="col-md-6 col-sm-12">
@@ -47,15 +74,23 @@
         <nav aria-label="Page navigation example">
           <ul class="pagination">
             <li class="page-item">
-              <a class="page-link" href="#" aria-label="Previous">
+              <a class="page-link" href="{%url 'stdmanage:exam-list' row_limit prev_current_next.0 %}" aria-label="Previous">
                 <span aria-hidden="true">&laquo;</span>
               </a>
             </li>
-            <li class="page-item"><a class="page-link" href="#">1</a></li>
-            <li class="page-item"><a class="page-link" href="#">2</a></li>
-            <li class="page-item"><a class="page-link" href="#">3</a></li>
+            
+            {% for i in assign_page_no %}
+              {% if i == prev_current_next.1 %}
+                <li class="page-item"><a class="page-link active" href="{%url 'stdmanage:exam-list' row_limit i %}">
+              {% else %}
+                <li class="page-item"><a class="page-link" href="{%url 'stdmanage:exam-list' row_limit i %}">   
+              {% endif %}
+            {{i}}
+            </a></li>
+            {% endfor %}
+            
             <li class="page-item">
-              <a class="page-link" href="#" aria-label="Next">
+              <a class="page-link" href="{%url 'stdmanage:exam-list' row_limit prev_current_next.2 %}" aria-label="Next">
                 <span aria-hidden="true">&raquo;</span>
               </a>
             </li>

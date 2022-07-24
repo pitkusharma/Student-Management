@@ -1,22 +1,59 @@
 {% extends 'stdmanage/base.html' %}
     
-  {% block title %}All Students{% endblock title %}
+  {% block title %}Add Result of Students{% endblock title %}
   {% block body %}
     
   <div class="container">
     
     <div class="row">
-      <div class="col-12 col-md-8">
-        <h3>All Students</h3> 
+      <div class="col-12 col-md-10">
+        <h3>Add Result of Students</h3> 
       </div>
     </div>
-    
-    <form action="{%url 'stdmanage:student-list-basic' %}" method="post">
+    {% comment %} 'result-add-list/<str:exam>/<str:subject>/<str:reading_class>/<int:row_limit>/<int:page_no>/' {% endcomment %}
+    <form action="{%url 'stdmanage:result-add-list-basic' %}" method="post">
       {% csrf_token %}
-      <div class="row my-1">
+      <div class="row">
         
         
-        <div class="col-5 col-md-3">
+        <div class="col-6 col-md-3 my-1">
+            <select name="exam" class="form-select" aria-label="Default select example">
+              <option>Select Exam</option>
+              {% for i in all_exams %}
+                {% if i.name == exam %}
+                
+                  <option selected value="{{i.name}}">{{i.name}}</option>
+                
+                  {% else %}
+                
+                  <option value="{{i.name}}">{{i.name}}</option>
+          
+                {% endif %}
+                              
+              {% endfor %}
+            </select>
+        </div>
+
+        <div class="col-6 col-md-2 my-1">
+            <select name="subject" class="form-select" aria-label="Default select example">
+              <option>Select Subject</option>
+              {% for i in all_subjects %}
+                {% if i.name == subject %}
+                
+                  <option selected value="{{i.name}}">{{i.name}}</option>
+                
+                  {% else %}
+                
+                  <option value="{{i.name}}">{{i.name}}</option>
+          
+                {% endif %}
+                              
+              {% endfor %}
+            </select>
+        </div>
+          
+
+        <div class="col-6 col-md-2 my-1">
           <select name="reading_class" class="form-select" aria-label="Default select example">
             <option value = "all" >all</option>
             {% for i in all_reading_class %}
@@ -34,7 +71,7 @@
           </select>
         </div>
         
-        <div class="col-5 col-md-3">
+        <div class="col-6 col-md-1 my-1">
           <select name="row_limit" default='5' class="form-select" aria-label="Default select example">
             <option selected value = "{{row_limit}}" >{{row_limit}}</option>
             <option value="3">3</option>
@@ -45,14 +82,14 @@
             <option value="50">50</option>
           </select>
         </div>
-        <div class="col-2 col-md-2">
+        <div class="col-12 col-md-2 my-1">
           <button class="btn btn-secondary">Set Params</button>
         </div>        
       </div>
     </form> 
     
     <div class="row">
-      <div class="col-md-8 col-sm-12">
+      <div class="col-md-10 col-sm-12 my-1">
         <table class="table table-striped table-bordered">
           <thead class="table-dark">
             <tr>
@@ -66,7 +103,7 @@
                 Class
               </th>
               <th>
-                Address
+                Link
               </th>
             </tr>
           </thead>
@@ -83,7 +120,10 @@
                   {{student.reading_class}}
                 </td>
                 <td>
-                  {{student.home_address}}
+                    {% comment %} 'result-create/<str:exam>/<str:subject>/<int:student>' {% endcomment %}
+                  <a href="{%url 'stdmanage:result-create' exam subject student.id%}" target="_blank">
+                      <button class="btn btn-secondary">Add Result</button>
+                  </a>
                 </td>
               </tr>
             {% endfor %}

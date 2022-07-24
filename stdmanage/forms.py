@@ -40,9 +40,16 @@ class ExamForm(forms.ModelForm):
     
     class Meta:
         model = Exam
-        fields = ('__all__')
+        fields = '__all__'
         widgets = {
             'date': forms.SelectDateWidget,
             'description': forms.Textarea(attrs={'rows': '5'})
         }
+
+
+class ResultForm(forms.ModelForm):
+
+    class Meta:
+        model = Result
+        fields = '__all__'
 

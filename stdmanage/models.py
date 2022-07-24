@@ -61,7 +61,7 @@ class Subject(models.Model):
     #     return reverse("Subject_detail", kwargs={"pk": self.pk})
 
 
-class ExamSubmission(models.Model):
+class Result(models.Model):
 
     score = models.CharField(max_length=10)
     answer_sheet = models.FileField(upload_to='answer_sheets')

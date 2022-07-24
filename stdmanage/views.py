@@ -1,10 +1,11 @@
 import math
 from django.shortcuts import render
 from django.urls import reverse, reverse_lazy
-from django.http import HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect
 from django.views.generic import View, TemplateView, ListView, DetailView, FormView, CreateView,\
      UpdateView, DeleteView
 from matplotlib.pyplot import get
+import requests
 
 from .models import *
 from .forms import *
@@ -39,120 +40,111 @@ class StudentDeleteView(DeleteView):
 
 class StudentListView(View):
     template_name = 'stdmanage/student_list.html'
+    pagination_url = 'stdmanage:student-list'
+    list_object_name = 'student_list'
+    model = Student
+    exam_use = False
+    subject_use = False
+    class_use = True
     
     def get(self, request, *args, **kwargs):
-    #<str:reading_class>/<int:row_limit>/<int:page_no>    
-        if kwargs['reading_class'] == 'all':
-            student_list = Student.objects.all()  
-            reading_class = kwargs['reading_class']
-        else:
-            reading_class = kwargs['reading_class']
-            reading_class_id = ReadingClass.objects.get(name = reading_class).id
-            student_list = Student.objects.filter(reading_class = reading_class_id)
-
-        row_limit = kwargs['row_limit']
-        page_no = kwargs['page_no'] # because page no. starts from zero
-
+        
         context = {}
+        list_object = self.model.objects.all()
 
-        context['student_list'] = student_list[ ( page_no - 1 ) * row_limit : page_no * row_limit ] 
+        if self.class_use == True:
+
+            try:
+                if kwargs['reading_class'] == 'all':
+                    list_object = self.model.objects.all()  
+                    reading_class = kwargs['reading_class']
+                
+                else:
+                    reading_class = kwargs['reading_class']
+                    reading_class_id = ReadingClass.objects.get(name = reading_class).id
+                    list_object = self.model.objects.filter(reading_class = reading_class_id)
+            
+            except:
+                reading_class = 'all'
+                list_object = self.model.objects.all()
+
+            context['reading_class'] = reading_class
+            context['all_reading_class'] = ReadingClass.objects.all()
+
+        if self.subject_use == True:
+            
+            try:
+                subject  = kwargs['subject']
+            except:
+                subject = 'select subject'
+            
+            context['subject'] = subject
+            context['all_subjects'] = Subject.objects.all()
+        
+        if self.exam_use == True:
+            
+            try:
+                subject  = kwargs['exam']
+            except:
+                subject = 'select exam'
+            
+            context['exam'] = subject
+            context['all_exams'] = Exam.objects.all()
+        
+        try:
+            row_limit = kwargs['row_limit']
+        except:
+            row_limit = 5
+        
+        try:   
+            page_no = kwargs['page_no'] # because page no. starts from zero
+        except:
+            page_no = 1
+
+        context[self.list_object_name] = list_object[ ( page_no - 1 ) * row_limit : page_no * row_limit ] 
       
         context['assign_page_no'] = [i+1 for i in range # to provide an iterable in panigation
-            ( 0, math.floor( ( student_list.count()  / row_limit ) + 1 ) ) ]
+            ( 0, math.floor( ( list_object.count()  / row_limit ) + 1 ) ) ]
 
         if page_no == context['assign_page_no'][0]:    
+            
             print(context['assign_page_no'][0], page_no)
             context['prev_current_next'] = ( context['assign_page_no'][0], page_no, page_no+1 )
         
-        elif page_no == context['assign_page_no'][-1]:
+        elif page_no == context['assign_page_no'][-1] or page_no > context['assign_page_no'][-1]:
+            
             context['prev_current_next'] = ( page_no-1, page_no, context['assign_page_no'][-1] )
         
         else:
+            
             context['prev_current_next'] = ( page_no-1, page_no, page_no+1 )
 
-        context['reading_class'] = reading_class
-        
         context['row_limit'] = row_limit
-
-        context['all_reading_class'] = ReadingClass.objects.all()
         
         return render(request, self.template_name, context)
 
 
     def post(self, request, *args, **kwargs):
-        
-        reading_class = request.POST['reading_class']
+        kwargs_dict = {}
+
+        if self.exam_use == True:
+            exam = request.POST['exam']
+            kwargs_dict['exam'] = exam
+
+        if self.subject_use == True:
+            subject = request.POST['subject']
+            kwargs_dict['subject'] = subject
+
+        if self.class_use == True:
+            reading_class = request.POST['reading_class']
+            kwargs_dict['reading_class'] = reading_class
+
         row_limit = request.POST['row_limit']
+        
+        kwargs_dict['row_limit'] = row_limit
+        kwargs_dict['page_no'] = 1        
 
-        return HttpResponseRedirect(reverse('stdmanage:student-list', 
-            kwargs={'reading_class': reading_class, 
-                'row_limit': row_limit,
-                'page_no': 1
-            }))
-
-    # def get_context_data(self, **kwargs):
-        
-    #     context = super().get_context_data(**kwargs) 
-        
-    #     if self.kwargs['reading_class'] == 'all':
-    #         student_list = Student.objects.all()
-        
-    #     elif self.kwargs['reading_class'] == 'set':
-    #         pass
-    #     else:
-    #         pass
-
-        
-    #     return context 
-        
-        # if self.kwargs['reading_class'] == 'all':
-            
-        #     reading_class_is = self.kwargs['reading_class']
-        #     student_list = Student.objects.all()
-        #     row_limit = self.kwargs['row_limit']
-        
-        # elif self.kwargs['reading_class'] == 'set':
-
-        #     return HttpResponseRedirect(reverse('student-list'))
-            
-        #     reading_class_is = self.request.GET['reading_class']
-            
-        #     reading_class_id = ReadingClass.objects.get(name = reading_class_is).id
-        #     student_list = Student.objects.filter(reading_class = reading_class_id)
-            
-        #     row_limit = int(self.request.GET['row_limit'])
-            
-        # else:
-            
-        #     reading_class_is = self.kwargs['reading_class']
-        #     reading_class_id = ReadingClass.objects.get(name = reading_class_is).id
-        #     student_list = Student.objects.filter(reading_class = reading_class_id)
-        #     row_limit = self.kwargs['row_limit']
-
-        # page_no = self.kwargs['page_no']
-               
-        # #returing the sliced list
-        # context['student_list'] = student_list[(page_no-1)*row_limit : page_no*row_limit] 
-
-        # context['assign_page_no'] = [i+1 for i in range #to provide an iterable in panigation
-        #     (0, math.ceil((student_list.count())/row_limit))]
-
-        # if page_no == context['assign_page_no'][0]:    
-        #     context['prev_current_next'] = (context['assign_page_no'][0], page_no, page_no+1)
-        
-        # elif page_no == context['assign_page_no'][-1]:
-        #     context['prev_current_next'] = (page_no-1, page_no, context['assign_page_no'][-1])
-        
-        # else:
-        #     context['prev_current_next'] = (page_no-1, page_no, page_no+1)
-
-        # context['reading_class'] = reading_class_is
-        
-        # context['row_limit'] = row_limit
-
-        # context['all_reading_class'] = ReadingClass.objects.all()
-        
-        # return context
+        return HttpResponseRedirect(reverse(self.pagination_url, kwargs= kwargs_dict))
 
 
 class StudentDetailView(DetailView):
@@ -187,7 +179,73 @@ class ExamDetailView(DetailView):
     model = Exam
 
 
-class ExamListView(ListView):
+class ExamListView(StudentListView):
+    template_name = 'stdmanage/exam_list.html'
+    pagination_url = 'stdmanage:exam-list'
+    list_object_name = 'exam_list'
     model = Exam
+    exam_use = False
+    subject_use = False
+    class_use = False
 
 
+class ResultAddListView(StudentListView):
+    template_name = 'stdmanage/result_add_list.html'
+    pagination_url = 'stdmanage:result-add-list'
+    list_object_name = 'student_list'
+    model = Student
+    exam_use = True
+    subject_use = True
+    class_use = True
+
+
+class ResultCreateView(FormView):
+    template_name = 'stdmanage/result_form.html'
+    model = Result
+    form_class = ResultForm
+
+    def get(self, request, *args, **kwargs):
+        
+        context = {}
+        form_data = {}
+        try:
+            exam = kwargs['exam']
+            exam_id = Exam.objects.get(name=exam).id
+            form_data['exam'] = exam_id
+        except:
+            exam = 'none'
+        
+        try:
+            subject = kwargs['subject']
+            subject_id = Subject.objects.get(name=subject).id
+            form_data['subject'] = subject_id
+        except:
+            subject = 'none'
+        
+        try:
+            student = kwargs['student']
+            student_id = Student.objects.get(id=student).id
+            form_data['student'] = student_id
+        except:
+            student = 'none'
+
+        result_form = self.form_class(initial = form_data)
+        
+        context['form'] = result_form
+
+        return render(request, self.template_name, context)
+
+    def post(self, request, *args, **kwargs):
+        
+        form_data = self.form_class(request.POST, request.FILES)
+        
+        if form_data.is_valid():
+            form_data.save()
+
+            return HttpResponse("Form Data Saved")
+        
+        else:
+            context = {}
+            context['form'] = form_data
+
+            return render(request, self.template_name, context)
