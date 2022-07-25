@@ -4,8 +4,6 @@ from django.urls import reverse, reverse_lazy
 from django.http import HttpResponse, HttpResponseRedirect
 from django.views.generic import View, TemplateView, ListView, DetailView, FormView, CreateView,\
      UpdateView, DeleteView
-from matplotlib.pyplot import get
-import requests
 
 from .models import *
 from .forms import *
