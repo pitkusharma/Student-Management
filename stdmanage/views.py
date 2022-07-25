@@ -19,6 +19,7 @@ class StudentCreateView(CreateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['title'] = 'Create Student Record'
+        context['submit_text'] = 'Create Student'
         return context
 
 
@@ -28,6 +29,7 @@ class StudentUpdateView(UpdateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['title'] = 'Update Student Record'
+        context['submit_text'] = 'Update Student'
         return context
 
 
@@ -156,6 +158,7 @@ class ExamCreateView(CreateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['title'] = 'Create Exam Record'
+        context['submit_text'] = 'Create Exam'
         return context
 
 
@@ -165,6 +168,7 @@ class ExamUpdateView(UpdateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['title'] = 'Update Exam Record'
+        context['submit_text'] = 'Update Exam'
         return context
 
 
@@ -247,3 +251,81 @@ class ResultCreateView(FormView):
             context['form'] = form_data
 
             return render(request, self.template_name, context)
+
+
+class ReadingClassCreateView(CreateView):
+    model = ReadingClass
+    form_class = ReadingClassForm
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Create New Reading Class'
+        context['submit_text'] = 'Create'
+        return context
+
+
+class ReadingClassUpdateView(UpdateView):
+    model = ReadingClass
+    form_class = ReadingClassForm
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Update Reading Class'
+        context['submit_text'] = 'Update'
+        return context
+
+
+class ReadingClassDeleteView(DeleteView):
+    model = ReadingClass
+    success_url = reverse_lazy("stdmanage:readingclass-list-basic")
+
+
+class ReadingClassListView(StudentListView):
+    template_name = 'stdmanage/readingclass_list.html'
+    pagination_url = 'stdmanage:readingclass-list'
+    list_object_name = 'class_list'
+    model = ReadingClass
+    exam_use = False
+    subject_use = False
+    class_use = False
+
+
+
+
+
+
+class SubjectCreateView(CreateView):
+    model = Subject
+    form_class = SubjectForm
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Create New Teaching Subject'
+        context['submit_text'] = 'Create'
+        return context
+
+
+class SubjectUpdateView(UpdateView):
+    model = Subject
+    form_class = SubjectForm
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Update Subject'
+        context['submit_text'] = 'Update'
+        return context
+
+
+class SubjectDeleteView(DeleteView):
+    model = Subject
+    success_url = reverse_lazy("stdmanage:subject-list-basic")
+
+
+class SubjectListView(StudentListView):
+    template_name = 'stdmanage/subject_list.html'
+    pagination_url = 'stdmanage:subject-list'
+    list_object_name = 'subject_list'
+    model = Subject
+    exam_use = False
+    subject_use = False
+    class_use = False

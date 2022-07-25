@@ -4,6 +4,13 @@ from .views import *
 app_name = 'stdmanage'
 urlpatterns = [
     path('', IndexView.as_view(), name = 'index'),
+
+    path('readingclass-create/', ReadingClassCreateView.as_view(), name = 'readingclass-create'),
+    path('readingclass-update/<int:pk>/', ReadingClassUpdateView.as_view(), name = 'readingclass-update'),
+    path('readingclass-delete/<int:pk>/', ReadingClassDeleteView.as_view(), name = 'readingclass-delete'),
+    path('readingclass-list/', ReadingClassListView.as_view(), name = 'readingclass-list-basic'),
+    path('readingclass-list/<int:row_limit>/<int:page_no>', 
+        ReadingClassListView.as_view(), name = 'readingclass-list'),
     
     path('student-create/', StudentCreateView.as_view(), name = 'student-create'),
     path('student-update/<int:pk>/', StudentUpdateView.as_view(), name = 'student-update'),
@@ -19,6 +26,15 @@ urlpatterns = [
     path('exam-detail/<int:pk>', ExamDetailView.as_view(), name='exam-detail'),
     path('exam-list/<int:row_limit>/<int:page_no>/', ExamListView.as_view(), name='exam-list'),
     path('exam-list/', ExamListView.as_view(), name='exam-list-basic'),
+
+
+    path('subject-create/', SubjectCreateView.as_view(), name = 'subject-create'),
+    path('subject-update/<int:pk>/', SubjectUpdateView.as_view(), name = 'subject-update'),
+    path('subject-delete/<int:pk>/', SubjectDeleteView.as_view(), name = 'subject-delete'),
+    path('subject-list/', SubjectListView.as_view(), name = 'subject-list-basic'),
+    path('subject-list/<int:row_limit>/<int:page_no>', 
+        SubjectListView.as_view(), name = 'subject-list'),
+
     
     path('result-add-list/', ResultAddListView.as_view(), name='result-add-list-basic'),
     path('result-add-list/<str:exam>/<str:subject>/<str:reading_class>/<int:row_limit>/<int:page_no>/', 

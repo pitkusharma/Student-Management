@@ -9,8 +9,8 @@ class ReadingClass(models.Model):
     def __str__(self):
         return self.name
 
-    # def get_absolute_url(self):
-    #     return reverse("ReadingClass_detail", kwargs={"pk": self.pk})
+    def get_absolute_url(self):
+        return reverse("stdmanage:readingclass-list-basic", kwargs={})
 
 
 
@@ -57,8 +57,8 @@ class Subject(models.Model):
     def __str__(self):
         return self.name
 
-    # def get_absolute_url(self):
-    #     return reverse("Subject_detail", kwargs={"pk": self.pk})
+    def get_absolute_url(self):
+        return reverse("stdmanage:subject-list-basic", kwargs={})
 
 
 class Result(models.Model):

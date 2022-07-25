@@ -1,0 +1,126 @@
+{% extends 'stdmanage/base.html' %}
+    
+  {% block title %}All Subjects{% endblock title %}
+  {% block body %}
+    
+  <div class="container">
+    
+    <div class="row my-3">
+      <div class="col-12 col-md-8">
+        <h3>All Subjects</h3> 
+      </div>
+    </div>
+    
+    <form action="{%url 'stdmanage:subject-list-basic' %}" method="post">
+      {% csrf_token %}
+      <div class="row my-1">
+        
+        <div class="col-5 col-md-3">
+          <select name="row_limit" default='5' class="form-select" aria-label="Default select example">
+            <option selected value = "{{row_limit}}" >{{row_limit}}</option>
+            <option value="3">3</option>
+            <option value="5">5</option>
+            <option value="10">10</option>
+            <option value="20">20</option>
+            <option value="30">30</option>
+            <option value="50">50</option>
+          </select>
+        </div>
+
+        <div class="col-2 col-md-2">
+          <button class="btn btn-secondary">Set Params</button>
+        </div>
+
+      </div>
+    </form> 
+    
+    <div class="row">
+      <div class="col-md-8 col-sm-12">
+        <table class="table table-striped table-bordered">
+          <thead class="table-dark">
+            <tr>
+              
+              <th>
+                Subject ID
+              </th>
+              <th>
+                subject Name
+              </th>
+              <th>
+                Edit
+              </th>
+              <th>
+                Delete
+              </th>
+
+            </tr>
+          </thead>
+          <tbody>
+            {% for subject in subject_list %}
+              <tr>
+                
+                <td>
+                  {{subject.id}}
+                </td>
+                <td>
+                  {{subject.name}}
+                </td>
+                <td>
+                  <a href="{%url 'stdmanage:subject-update' subject.id%}">
+                      <button class="btn btn-secondary" >Edit</button>
+                  </a>
+                </td>
+                <td>
+                  <a href="{%url 'stdmanage:subject-delete' subject.id%}">
+                      <button class="btn btn-danger">Delete</button>
+                  </a>
+                </td>
+                
+              </tr>
+            {% endfor %}
+          </tbody>
+    
+        </table>
+      </div>
+    </div>
+    
+    <div class="row">
+      <div class="col-12 col-md-5">
+        <nav aria-label="Page navigation example">
+          <ul class="pagination">
+            <li class="page-item">
+              <a class="page-link" href="{%url 'stdmanage:subject-list' row_limit prev_current_next.0 %}" aria-label="Previous">
+                <span aria-hidden="true">&laquo;</span>
+              </a>
+            </li>
+            
+            {% for i in assign_page_no %}
+              {% if i == prev_current_next.1 %}
+                <li class="page-item"><a class="page-link active" href="{%url 'stdmanage:subject-list' row_limit i %}">
+              {% else %}
+                <li class="page-item"><a class="page-link" href="{%url 'stdmanage:subject-list' row_limit i %}">   
+              {% endif %}
+            {{i}}
+            </a></li>
+            {% endfor %}
+            
+            <li class="page-item">
+              <a class="page-link" href="{%url 'stdmanage:subject-list' row_limit prev_current_next.2 %}" aria-label="Next">
+                <span aria-hidden="true">&raquo;</span>
+              </a>
+            </li>
+          </ul>
+        </nav>
+      </div>
+      <div class="col-12 col-md-3">
+        <a href="{%url 'stdmanage:subject-create' %}">
+          <button class="btn btn-outline-secondary">Create New Subject</button>
+        </a>
+      </div>
+    </div>
+
+
+    
+  </div>
+
+  {% endblock body %}

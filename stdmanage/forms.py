@@ -52,4 +52,19 @@ class ResultForm(forms.ModelForm):
     class Meta:
         model = Result
         fields = '__all__'
+
+
+class ReadingClassForm(forms.ModelForm):
+
+    class Meta:
+        model = ReadingClass
+        fields = '__all__'
    
+
+class SubjectForm(forms.ModelForm):
+
+    class Meta:
+        model = Subject
+        fields = '__all__'
+   
+
