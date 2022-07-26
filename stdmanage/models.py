@@ -47,7 +47,7 @@ class Exam(models.Model):
         return self.name
 
     def get_absolute_url(self):
-        return reverse("Exam_detail", kwargs={"pk": self.pk})
+        return reverse("stdmanage:exam-detail", kwargs={"pk": self.pk})
 
 
 class Subject(models.Model):

@@ -14,6 +14,7 @@ class IndexView(TemplateView):
 
 
 class StudentCreateView(CreateView):
+    template_name = 'stdmanage/create_update_form.html'
     form_class = StudentForm
     model = Student
     def get_context_data(self, **kwargs):
@@ -24,6 +25,7 @@ class StudentCreateView(CreateView):
 
 
 class StudentUpdateView(UpdateView):
+    template_name = 'stdmanage/create_update_form.html'
     form_class = StudentForm 
     model = Student
     def get_context_data(self, **kwargs):
@@ -35,7 +37,16 @@ class StudentUpdateView(UpdateView):
 
 class StudentDeleteView(DeleteView):
     model = Student
-    success_url = reverse_lazy('stdmanage:student-list')
+    success_url = reverse_lazy('stdmanage:student-list-basic')
+    template_name = 'stdmanage/confirm_delete.html'
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        the_object = self.model.objects.get(id = self.kwargs['pk'])
+        title = "Are you sure you want to delete student " + the_object.full_name + " ?" 
+        context['title'] = title
+        context['delete_url_name'] = 'stdmanage:student-delete'
+        context['go_back_url'] = reverse('stdmanage:student-detail', kwargs={'pk': the_object.id})
+        return context
 
 
 class StudentListView(View):
@@ -153,6 +164,7 @@ class StudentDetailView(DetailView):
 
 
 class ExamCreateView(CreateView):
+    template_name = 'stdmanage/create_update_form.html'
     form_class = ExamForm
     model = Exam 
     def get_context_data(self, **kwargs):
@@ -163,6 +175,7 @@ class ExamCreateView(CreateView):
 
 
 class ExamUpdateView(UpdateView):
+    template_name = 'stdmanage/create_update_form.html'
     form_class = ExamForm
     model = Exam 
     def get_context_data(self, **kwargs):
@@ -174,7 +187,16 @@ class ExamUpdateView(UpdateView):
 
 class ExamDeleteView(DeleteView):
     model = Exam
-    success_url = reverse_lazy('stdmanage:exam-list')
+    success_url = reverse_lazy('stdmanage:exam-list-basic')
+    template_name = 'stdmanage/confirm_delete.html'
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        the_object = self.model.objects.get(id = self.kwargs['pk'])
+        title = "Are you sure you want to delete exam " + the_object.name + " ?" 
+        context['title'] = title
+        context['delete_url_name'] = 'stdmanage:exam-delete'
+        context['go_back_url'] = reverse('stdmanage:exam-detail', kwargs={'pk': the_object.id})
+        return context
 
 
 class ExamDetailView(DetailView):
@@ -254,6 +276,7 @@ class ResultCreateView(FormView):
 
 
 class ReadingClassCreateView(CreateView):
+    template_name = 'stdmanage/create_update_form.html'
     model = ReadingClass
     form_class = ReadingClassForm
     
@@ -265,6 +288,7 @@ class ReadingClassCreateView(CreateView):
 
 
 class ReadingClassUpdateView(UpdateView):
+    template_name = 'stdmanage/create_update_form.html'
     model = ReadingClass
     form_class = ReadingClassForm
     
@@ -278,6 +302,15 @@ class ReadingClassUpdateView(UpdateView):
 class ReadingClassDeleteView(DeleteView):
     model = ReadingClass
     success_url = reverse_lazy("stdmanage:readingclass-list-basic")
+    template_name = 'stdmanage/confirm_delete.html'
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        the_object = self.model.objects.get(id = self.kwargs['pk'])
+        title = "Are you sure you want to delete class " + the_object.name + " ?" 
+        context['title'] = title
+        context['delete_url_name'] = 'stdmanage:readingclass-delete'
+        context['go_back_url'] = reverse('stdmanage:readingclass-list-basic', kwargs={})
+        return context
 
 
 class ReadingClassListView(StudentListView):
@@ -295,6 +328,7 @@ class ReadingClassListView(StudentListView):
 
 
 class SubjectCreateView(CreateView):
+    template_name = 'stdmanage/create_update_form.html'
     model = Subject
     form_class = SubjectForm
     
@@ -306,6 +340,7 @@ class SubjectCreateView(CreateView):
 
 
 class SubjectUpdateView(UpdateView):
+    template_name = 'stdmanage/create_update_form.html'
     model = Subject
     form_class = SubjectForm
     
@@ -319,7 +354,15 @@ class SubjectUpdateView(UpdateView):
 class SubjectDeleteView(DeleteView):
     model = Subject
     success_url = reverse_lazy("stdmanage:subject-list-basic")
-
+    template_name = 'stdmanage/confirm_delete.html'
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        the_object = self.model.objects.get(id = self.kwargs['pk'])
+        title = "Are you sure you want to delete subject " + the_object.name + " ?" 
+        context['title'] = title
+        context['delete_url_name'] = 'stdmanage:subject-delete'
+        context['go_back_url'] = reverse('stdmanage:subject-list-basic', kwargs={})
+        return context
 
 class SubjectListView(StudentListView):
     template_name = 'stdmanage/subject_list.html'
