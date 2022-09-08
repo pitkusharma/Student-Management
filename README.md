@@ -1,6 +1,8 @@
 Often teachers who conduct private tutions, and has pretty large no. of students, face the problem to manage their students, student's performance on exams, their answer sheet, exam questions etc. So I tried to build a web based student management system to efficiently manage and store student and their performance related information.
 Technolodgy used: Django, SQL database, html, css, javascript, bootstrap
 
+This project is hosted at: https://pitkusharma6.pythonanywhere.com/
+feel free to checkout
 
 
 Dashboard:
