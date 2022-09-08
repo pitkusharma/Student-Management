@@ -9,6 +9,9 @@ Dashboard:
 Add Students:
 ![image](https://user-images.githubusercontent.com/48028965/189177765-b470de3d-45a6-4028-b5c9-9df49c312ab0.png)
 
+View student details:
+![image](https://user-images.githubusercontent.com/48028965/189178782-5b15fd9c-af34-4374-b6f7-769300ff49a4.png)
+
 Create new exams:
 ![image](https://user-images.githubusercontent.com/48028965/189177843-a6e452e2-600e-44e0-a9d1-3fd60ae8b55f.png)
 
