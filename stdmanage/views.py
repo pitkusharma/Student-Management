@@ -1,20 +1,28 @@
-import math
 from django.shortcuts import render
 from django.urls import reverse, reverse_lazy
 from django.http import HttpResponse, HttpResponseRedirect
-from django.views.generic import View, TemplateView, ListView, DetailView, FormView, CreateView,\
-     UpdateView, DeleteView
+from django.views import generic
 
 from .models import *
 from .forms import *
 
 
-class IndexView(TemplateView):
+class IndexView(generic.View):
     template_name = 'stdmanage/index.html'
 
+    def get(self,request, *args, **kwargs):
+        context = {}
+        context["student_count"] = Student.objects.all().count()
+        context["recent_students"] = Student.objects.all()[:5]
+        context["recent_exams"] = Exam.objects.all()[:3]
+        context["recent_result"] = Result.objects.all()[:5]
 
-class StudentCreateView(CreateView):
-    template_name = 'stdmanage/create_update_form.html'
+        return render(request, self.template_name, context)
+
+
+
+class StudentCreateView(generic.CreateView):
+    template_name = 'stdmanage/form.html'
     form_class = StudentForm
     model = Student
     def get_context_data(self, **kwargs):
@@ -24,8 +32,8 @@ class StudentCreateView(CreateView):
         return context
 
 
-class StudentUpdateView(UpdateView):
-    template_name = 'stdmanage/create_update_form.html'
+class StudentUpdateView(generic.UpdateView):
+    template_name = 'stdmanage/form.html'
     form_class = StudentForm 
     model = Student
     def get_context_data(self, **kwargs):
@@ -35,9 +43,9 @@ class StudentUpdateView(UpdateView):
         return context
 
 
-class StudentDeleteView(DeleteView):
+class StudentDeleteView(generic.DeleteView):
     model = Student
-    success_url = reverse_lazy('stdmanage:student-list-basic')
+    success_url = reverse_lazy('stdmanage:student-list', kwargs={'page_no': 1})
     template_name = 'stdmanage/confirm_delete.html'
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -49,122 +57,206 @@ class StudentDeleteView(DeleteView):
         return context
 
 
-class StudentListView(View):
-    template_name = 'stdmanage/student_list.html'
-    pagination_url = 'stdmanage:student-list'
-    list_object_name = 'student_list'
-    model = Student
-    exam_use = False
-    subject_use = False
-    class_use = True
+class StudentListView(generic.View):
+    template_name = "stdmanage/student_list.html"
     
-    def get(self, request, *args, **kwargs):
-        
+    def get_list(self,request, *args, **kwargs):
         context = {}
-        list_object = self.model.objects.all()
-
-        if self.class_use == True:
-
-            try:
-                if kwargs['reading_class'] == 'all':
-                    list_object = self.model.objects.all()  
-                    reading_class = kwargs['reading_class']
-                
-                else:
-                    reading_class = kwargs['reading_class']
-                    reading_class_id = ReadingClass.objects.get(name = reading_class).id
-                    list_object = self.model.objects.filter(reading_class = reading_class_id)
-            
-            except:
-                reading_class = 'all'
-                list_object = self.model.objects.all()
-
-            context['reading_class'] = reading_class
-            context['all_reading_class'] = ReadingClass.objects.all()
-
-        if self.subject_use == True:
-            
-            try:
-                subject  = kwargs['subject']
-            except:
-                subject = 'select subject'
-            
-            context['subject'] = subject
-            context['all_subjects'] = Subject.objects.all()
         
-        if self.exam_use == True:
-            
-            try:
-                subject  = kwargs['exam']
-            except:
-                subject = 'select exam'
-            
-            context['exam'] = subject
-            context['all_exams'] = Exam.objects.all()
+        context['all_class'] = ReadingClass.objects.all()
         
         try:
-            row_limit = kwargs['row_limit']
+            context["reading_class"] = request.session["reading_class"]
         except:
-            row_limit = 5
+            context["reading_class"] = "all"
+            request.session["reading_class"] = "all"
         
-        try:   
-            page_no = kwargs['page_no'] # because page no. starts from zero
+        if context["reading_class"] != "all":
+            reading_class = ReadingClass.objects.get(name = request.session["reading_class"])
+            student_list = Student.objects.filter(reading_class = reading_class)
+        else:
+            student_list = Student.objects.all()
+        
+        return [context, student_list]
+
+    def get(self, request, *args, **kwargs):
+        res = self.get_list(request, *args, **kwargs)
+        context = res[0]
+        list_object = res[1]
+
+        try:
+            page_size = int(request.session["page_size"])
+        except:
+            page_size = 5
+            request.session["page_size"] = page_size
+        context["page_size"] = page_size
+
+        try:
+            page_no = kwargs["page_no"]
         except:
             page_no = 1
 
-        context[self.list_object_name] = list_object[ ( page_no - 1 ) * row_limit : page_no * row_limit ] 
-      
-        context['assign_page_no'] = [i+1 for i in range # to provide an iterable in panigation
-            ( 0, math.floor( ( list_object.count()  / row_limit ) + 1 ) ) ]
+        context["list_object"] = list_object[ ( page_no - 1 ) * page_size : page_no * page_size ]
+        
+        count = len(list_object)
+        i = 1
+        pages = []
+        while count >= 0:
+            pages.append(i)
+            i += 1
+            count -= page_size
 
-        if page_no == context['assign_page_no'][0]:    
-            
-            print(context['assign_page_no'][0], page_no)
-            context['prev_current_next'] = ( context['assign_page_no'][0], page_no, page_no+1 )
-        
-        elif page_no == context['assign_page_no'][-1] or page_no > context['assign_page_no'][-1]:
-            
-            context['prev_current_next'] = ( page_no-1, page_no, context['assign_page_no'][-1] )
-        
+        context["pages"] = pages
+        context["current"] = page_no
+
+        if page_no != pages[0]:
+            context["prev"] = page_no - 1
         else:
-            
-            context['prev_current_next'] = ( page_no-1, page_no, page_no+1 )
+            context["prev"] = 1
 
-        context['row_limit'] = row_limit
-        
+        if page_no != pages[-1]:
+            context["next"] = page_no + 1
+        else:
+            context["next"] = pages[-1]
+
         return render(request, self.template_name, context)
 
-
     def post(self, request, *args, **kwargs):
-        kwargs_dict = {}
-
-        if self.exam_use == True:
-            exam = request.POST['exam']
-            kwargs_dict['exam'] = exam
-
-        if self.subject_use == True:
-            subject = request.POST['subject']
-            kwargs_dict['subject'] = subject
-
-        if self.class_use == True:
-            reading_class = request.POST['reading_class']
-            kwargs_dict['reading_class'] = reading_class
-
-        row_limit = request.POST['row_limit']
+        try:
+            request.session["reading_class"] = request.POST["reading_class"]
+        except:
+            pass
+        try:
+            request.session["page_size"] = request.POST["page_size"]
+        except:
+            pass
         
-        kwargs_dict['row_limit'] = row_limit
-        kwargs_dict['page_no'] = 1        
+        return HttpResponseRedirect(reverse("stdmanage:student-list", kwargs={
+            "page_no": 1
+        }))
 
-        return HttpResponseRedirect(reverse(self.pagination_url, kwargs= kwargs_dict))
 
-
-class StudentDetailView(DetailView):
+class StudentDetailView(generic.DetailView):
     model = Student
     context_object_name = 'student_detail'
 
 
-class ExamCreateView(CreateView):
-    template_name = 'stdmanage/create_update_form.html'
+class ReadingClassCreateView(generic.CreateView):
+    template_name = 'stdmanage/form.html'
+    model = ReadingClass
+    form_class = ReadingClassForm
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Create New Reading Class'
+        context['submit_text'] = 'Create'
+        return context
+
+
+class ReadingClassUpdateView(generic.UpdateView):
+    template_name = 'stdmanage/form.html'
+    model = ReadingClass
+    form_class = ReadingClassForm
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Update Reading Class'
+        context['submit_text'] = 'Update'
+        return context
+
+
+class ReadingClassDeleteView(generic.DeleteView):
+    model = ReadingClass
+    success_url = reverse_lazy("stdmanage:readingclass-list", kwargs = {"page_no": 1})
+    template_name = 'stdmanage/confirm_delete.html'
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        the_object = self.model.objects.get(id = self.kwargs['pk'])
+        title = "Are you sure you want to delete class " + the_object.name + " ?" 
+        context['title'] = title
+        context['delete_url_name'] = 'stdmanage:readingclass-delete'
+        context['go_back_url'] = reverse('stdmanage:readingclass-list', kwargs={"page_no": 1})
+        return context
+
+
+class ReadingClassListView(StudentListView):
+    template_name = 'stdmanage/readingclass_list.html'
+    
+    def get_list(self, request, *args, **kwargs):
+        context = {}
+        all_class = ReadingClass.objects.all()
+        return context, all_class
+    
+    def post(self, request, *args, **kwargs):
+        try:
+            request.session["page_size"] = request.POST["page_size"]
+        except:
+            pass
+        
+        return HttpResponseRedirect(reverse("stdmanage:readingclass-list", kwargs={
+            "page_no": 1
+        }))
+
+
+class SubjectCreateView(generic.CreateView):
+    template_name = 'stdmanage/form.html'
+    model = Subject
+    form_class = SubjectForm
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Create New Teaching Subject'
+        context['submit_text'] = 'Create'
+        return context
+
+
+class SubjectUpdateView(generic.UpdateView):
+    template_name = 'stdmanage/form.html'
+    model = Subject
+    form_class = SubjectForm
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Update Subject'
+        context['submit_text'] = 'Update'
+        return context
+
+
+class SubjectDeleteView(generic.DeleteView):
+    model = Subject
+    success_url = reverse_lazy("stdmanage:subject-list", kwargs={'page_no': 1})
+    template_name = 'stdmanage/confirm_delete.html'
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        the_object = self.model.objects.get(id = self.kwargs['pk'])
+        title = "Are you sure you want to delete subject " + the_object.name + " ?" 
+        context['title'] = title
+        context['delete_url_name'] = 'stdmanage:subject-delete'
+        context['go_back_url'] = reverse('stdmanage:subject-list', kwargs={"page_no": 1})
+        return context
+
+
+class SubjectListView(StudentListView):
+    template_name = 'stdmanage/subject_list.html'
+    
+    def get_list(self, request, *args, **kwargs):
+        context = {}    
+        all_subjects = Subject.objects.all()
+        return context, all_subjects
+    
+    def post(self, request, *args, **kwargs):
+        try:
+            request.session["page_size"] = request.POST["page_size"]
+        except:
+            pass
+        
+        return HttpResponseRedirect(reverse("stdmanage:subject-list", kwargs={
+            "page_no": 1
+        }))
+
+
+class ExamCreateView(generic.CreateView):
+    template_name = 'stdmanage/form.html'
     form_class = ExamForm
     model = Exam 
     def get_context_data(self, **kwargs):
@@ -174,8 +266,8 @@ class ExamCreateView(CreateView):
         return context
 
 
-class ExamUpdateView(UpdateView):
-    template_name = 'stdmanage/create_update_form.html'
+class ExamUpdateView(generic.UpdateView):
+    template_name = 'stdmanage/form.html'
     form_class = ExamForm
     model = Exam 
     def get_context_data(self, **kwargs):
@@ -185,9 +277,9 @@ class ExamUpdateView(UpdateView):
         return context
 
 
-class ExamDeleteView(DeleteView):
+class ExamDeleteView(generic.DeleteView):
     model = Exam
-    success_url = reverse_lazy('stdmanage:exam-list-basic')
+    success_url = reverse_lazy('stdmanage:exam-list', kwargs={'page_no': 1})
     template_name = 'stdmanage/confirm_delete.html'
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -199,31 +291,99 @@ class ExamDeleteView(DeleteView):
         return context
 
 
-class ExamDetailView(DetailView):
+class ExamDetailView(generic.DetailView):
     model = Exam
 
 
 class ExamListView(StudentListView):
     template_name = 'stdmanage/exam_list.html'
-    pagination_url = 'stdmanage:exam-list'
-    list_object_name = 'exam_list'
-    model = Exam
-    exam_use = False
-    subject_use = False
-    class_use = False
+
+    def get_list(self, request, *args, **kwargs):
+        context = {}        
+        exam_list = Exam.objects.all()
+
+        return [context, exam_list]
+    
+    def post(self, request, *args, **kwargs):
+        try:
+            request.session["page_size"] = request.POST["page_size"]
+        except:
+            pass
+        
+        return HttpResponseRedirect(reverse("stdmanage:exam-list", kwargs={
+            "page_no": 1
+        }))
 
 
 class ResultAddListView(StudentListView):
     template_name = 'stdmanage/result_add_list.html'
-    pagination_url = 'stdmanage:result-add-list'
-    list_object_name = 'student_list'
-    model = Student
-    exam_use = True
-    subject_use = True
-    class_use = True
+    
+    def get_list(self, request, *args, **kwargs):
+        context = {}        
+        
+        try:
+            subject = Subject.objects.get(name = request.session["subject"])
+        except:
+            subject = Subject.objects.all().first()
+        context["subject"] = subject.name
+        
+        try:
+            reading_class = ReadingClass.objects.get(name = request.session["reading_class"])
+        except:
+            reading_class = ReadingClass.objects.all().first()
+        context["reading_class"] = reading_class.name
+        
+        
+        try:
+            exam = Exam.objects.get(name = request.session["exam"])
+        except:
+            exam = Exam.objects.all().first()
+        context["exam"] = exam.name
+
+        result_list = Student.objects.all()
+        if reading_class != "all":
+            temp = []
+            for i in result_list:
+                if i.reading_class == reading_class:
+                    result = Result.objects.filter(
+                        exam = exam,
+                        subject = subject,
+                        student = i
+                    )
+                    if result.count() == 0:
+                        temp.append(i)
+
+            result_list = temp
+        
+        context["all_exams"] = Exam.objects.all()
+        context["all_subjects"] = Subject.objects.all()
+        context["all_class"] = ReadingClass.objects.all()
+        return [context, result_list]
+    
+    def post(self, request, *args, **kwargs):
+        try:
+            request.session["page_size"] = request.POST["page_size"]
+        except:
+            pass
+        try:
+            request.session["subject"] = request.POST["subject"]
+        except:
+            pass
+        try:
+            request.session["reading_class"] = request.POST["reading_class"]
+        except:
+            pass
+        try:
+            request.session["exam"] = request.POST["exam"]
+        except:
+            pass
+        
+        return HttpResponseRedirect(reverse("stdmanage:result-add-list", kwargs={
+            "page_no": 1
+        }))
 
 
-class ResultCreateView(FormView):
+class ResultCreateView(generic.FormView):
     template_name = 'stdmanage/result_form.html'
     model = Result
     form_class = ResultForm
@@ -266,7 +426,7 @@ class ResultCreateView(FormView):
         if form_data.is_valid():
             form_data.save()
 
-            return HttpResponse("Form Data Saved")
+            return HttpResponse("Record Saved")
         
         else:
             context = {}
@@ -275,100 +435,97 @@ class ResultCreateView(FormView):
             return render(request, self.template_name, context)
 
 
-class ReadingClassCreateView(CreateView):
-    template_name = 'stdmanage/create_update_form.html'
-    model = ReadingClass
-    form_class = ReadingClassForm
+class ResultListView(StudentListView):
+    template_name = "stdmanage/result_list.html"
+
+    def get_list(self, request, *args, **kwargs):
+        context = {}        
+        
+        try:
+            subject = Subject.objects.get(name = request.session["subject"])
+        except:
+            subject = Subject.objects.all().first()
+        context["subject"] = subject.name
+        
+        try:
+            reading_class = ReadingClass.objects.get(name = request.session["reading_class"])
+        except:
+            reading_class = ReadingClass.objects.all().first()
+        context["reading_class"] = reading_class.name
+        
+        
+        try:
+            exam = Exam.objects.get(name = request.session["exam"])
+        except:
+            exam = Exam.objects.all().first()
+        context["exam"] = exam.name
+
+        result_list = Result.objects.filter(
+            exam = exam,
+            subject = subject,
+        )
+        
+        temp = []
+        for i in result_list:
+            if i.student.reading_class == reading_class:
+                temp.append(i)
+        result_list = temp
+        
+        context["all_exams"] = Exam.objects.all()
+        context["all_subjects"] = Subject.objects.all()
+        context["all_class"] = ReadingClass.objects.all()
+        return [context, result_list]
     
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['title'] = 'Create New Reading Class'
-        context['submit_text'] = 'Create'
-        return context
+    def post(self, request, *args, **kwargs):
+        try:
+            request.session["page_size"] = request.POST["page_size"]
+        except:
+            pass
+        try:
+            request.session["subject"] = request.POST["subject"]
+        except:
+            pass
+        try:
+            request.session["reading_class"] = request.POST["reading_class"]
+        except:
+            pass
+        try:
+            request.session["exam"] = request.POST["exam"]
+        except:
+            pass
+        
+        return HttpResponseRedirect(reverse("stdmanage:result-list", kwargs={
+            "page_no": 1
+        }))
 
 
-class ReadingClassUpdateView(UpdateView):
-    template_name = 'stdmanage/create_update_form.html'
-    model = ReadingClass
-    form_class = ReadingClassForm
-    
+class ResultUpdateView(generic.UpdateView):
+    template_name = 'stdmanage/form.html'
+    form_class = ResultForm
+    model = Result
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['title'] = 'Update Reading Class'
+        context['title'] = 'Update Record'
         context['submit_text'] = 'Update'
         return context
 
 
-class ReadingClassDeleteView(DeleteView):
-    model = ReadingClass
-    success_url = reverse_lazy("stdmanage:readingclass-list-basic")
+class ResultDeleteView(generic.DeleteView):
     template_name = 'stdmanage/confirm_delete.html'
+    model = Result
+    success_url = reverse_lazy('stdmanage:result-list', kwargs = {
+        "page_no": 1
+    })
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         the_object = self.model.objects.get(id = self.kwargs['pk'])
-        title = "Are you sure you want to delete class " + the_object.name + " ?" 
+        title = "Are you sure you want to delete " + the_object.student.full_name + " result ?" 
         context['title'] = title
-        context['delete_url_name'] = 'stdmanage:readingclass-delete'
-        context['go_back_url'] = reverse('stdmanage:readingclass-list-basic', kwargs={})
+        context['delete_url_name'] = 'stdmanage:result-delete'
+        context['go_back_url'] = reverse('stdmanage:result-list', kwargs = {
+            "page_no": 1
+            })
         return context
 
 
-class ReadingClassListView(StudentListView):
-    template_name = 'stdmanage/readingclass_list.html'
-    pagination_url = 'stdmanage:readingclass-list'
-    list_object_name = 'class_list'
-    model = ReadingClass
-    exam_use = False
-    subject_use = False
-    class_use = False
 
-
-
-
-
-
-class SubjectCreateView(CreateView):
-    template_name = 'stdmanage/create_update_form.html'
-    model = Subject
-    form_class = SubjectForm
-    
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['title'] = 'Create New Teaching Subject'
-        context['submit_text'] = 'Create'
-        return context
-
-
-class SubjectUpdateView(UpdateView):
-    template_name = 'stdmanage/create_update_form.html'
-    model = Subject
-    form_class = SubjectForm
-    
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['title'] = 'Update Subject'
-        context['submit_text'] = 'Update'
-        return context
-
-
-class SubjectDeleteView(DeleteView):
-    model = Subject
-    success_url = reverse_lazy("stdmanage:subject-list-basic")
-    template_name = 'stdmanage/confirm_delete.html'
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        the_object = self.model.objects.get(id = self.kwargs['pk'])
-        title = "Are you sure you want to delete subject " + the_object.name + " ?" 
-        context['title'] = title
-        context['delete_url_name'] = 'stdmanage:subject-delete'
-        context['go_back_url'] = reverse('stdmanage:subject-list-basic', kwargs={})
-        return context
-
-class SubjectListView(StudentListView):
-    template_name = 'stdmanage/subject_list.html'
-    pagination_url = 'stdmanage:subject-list'
-    list_object_name = 'subject_list'
-    model = Subject
-    exam_use = False
-    subject_use = False
-    class_use = False

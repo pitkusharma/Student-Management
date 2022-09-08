@@ -11,15 +11,14 @@
       </div>
     </div>
     
-    <form action="{%url 'stdmanage:student-list-basic' %}" method="post">
+    <form action="{%url 'stdmanage:student-list' current %}" method="post">
       {% csrf_token %}
       <div class="row my-1">
-        
-        
+      
         <div class="col-5 col-md-3">
           <select name="reading_class" class="form-select" aria-label="Default select example">
             <option value = "all" >all</option>
-            {% for i in all_reading_class %}
+            {% for i in all_class %}
               {% if i.name == reading_class %}
               
                 <option selected value="{{i.name}}">{{i.name}}</option>
@@ -35,8 +34,8 @@
         </div>
         
         <div class="col-5 col-md-3">
-          <select name="row_limit" default='5' class="form-select" aria-label="Default select example">
-            <option selected value = "{{row_limit}}" >{{row_limit}}</option>
+          <select name="page_size" default='5' class="form-select" aria-label="Default select example">
+            <option selected value = "{{page_size}}" >{{page_size}}</option>
             <option value="3">3</option>
             <option value="5">5</option>
             <option value="10">10</option>
@@ -56,39 +55,23 @@
         <table class="table table-striped table-bordered">
           <thead class="table-dark">
             <tr>
-              <th>
-                Student ID
-              </th>
-              <th>
-                Name
-              </th>
-              <th>
-                Class
-              </th>
-              <th>
-                Address
-              </th>
+              <th> Student ID </th>
+              <th> Name </th>
+              <th> Class </th>
+              <th> Address </th>
             </tr>
           </thead>
           <tbody>
-            {% for student in student_list %}
+            {% for student in list_object %}
               <tr>
-                <td>
-                  {{student.id}}
+                <td> {{student.id}} </td>
+                <td> <a href="{%url 'stdmanage:student-detail' student.id%}">{{student.full_name}}</a>
                 </td>
-                <td>
-                  <a href="{%url 'stdmanage:student-detail' student.id%}">{{student.full_name}}</a>
-                </td>
-                <td>
-                  {{student.reading_class}}
-                </td>
-                <td>
-                  {{student.home_address}}
-                </td>
+                <td> {{student.class}} </td>
+                <td> {{student.home_address}} </td>
               </tr>
             {% endfor %}
           </tbody>
-    
         </table>
       </div>
     </div>
@@ -98,23 +81,23 @@
         <nav aria-label="Page navigation example">
           <ul class="pagination">
             <li class="page-item">
-              <a class="page-link" href="{%url 'stdmanage:student-list' reading_class row_limit prev_current_next.0 %}" aria-label="Previous">
+              <a class="page-link" href="{%url 'stdmanage:student-list' prev %}" aria-label="Previous">
                 <span aria-hidden="true">&laquo;</span>
               </a>
             </li>
             
-            {% for i in assign_page_no %}
-              {% if i == prev_current_next.1 %}
-                <li class="page-item"><a class="page-link active" href="{%url 'stdmanage:student-list' reading_class row_limit i %}">
+            {% for i in pages %}
+              {% if i == current %}
+                <li class="page-item"><a class="page-link active" href="{%url 'stdmanage:student-list' i %}">
               {% else %}
-                <li class="page-item"><a class="page-link" href="{%url 'stdmanage:student-list' reading_class row_limit i %}">   
+                <li class="page-item"><a class="page-link" href="{%url 'stdmanage:student-list' i %}">   
               {% endif %}
             {{i}}
             </a></li>
             {% endfor %}
             
             <li class="page-item">
-              <a class="page-link" href="{%url 'stdmanage:student-list' reading_class row_limit prev_current_next.2 %}" aria-label="Next">
+              <a class="page-link" href="{%url 'stdmanage:student-list' next %}" aria-label="Next">
                 <span aria-hidden="true">&raquo;</span>
               </a>
             </li>
@@ -123,8 +106,6 @@
       </div>
     </div>
 
-
-    
   </div>
 
   {% endblock body %}

@@ -1,19 +1,20 @@
 {% extends 'stdmanage/base.html' %}
     
-  {% block title %}Add Result of Students{% endblock title %}
+  {% block title %}View Results of Students{% endblock title %}
   {% block body %}
     
   <div class="container">
     
     <div class="row">
       <div class="col-12 col-md-10">
-        <h3>Add Result of Students</h3> 
+        <h3>View Results of Students</h3> 
       </div>
     </div>
-    <form action="{%url 'stdmanage:result-add-list' 1 %}" method="post">
+    <form action="{%url 'stdmanage:result-list' 1 %}" method="post">
       {% csrf_token %}
       <div class="row">
-
+        
+        
         <div class="col-6 col-md-3 my-1">
             <select name="exam" class="form-select" aria-label="Default select example">
               <option>Select Exam</option>
@@ -48,7 +49,8 @@
                               
               {% endfor %}
             </select>
-        </div>  
+        </div>
+          
 
         <div class="col-6 col-md-2 my-1">
           <select name="reading_class" class="form-select" aria-label="Default select example">
@@ -90,27 +92,39 @@
         <table class="table table-striped table-bordered">
           <thead class="table-dark">
             <tr>
-              <th> Student ID </th>
               <th> Name </th>
               <th> Class </th>
-              <th> Link </th>
+              <th> Subject </th>
+              <th> Score </th>
+              <th> Anshwer Paper </th>
+              <th> Edit </th>
+              <th> Delete </th>
             </tr>
           </thead>
           <tbody>
-            {% for student in list_object %}
+            {% for result in list_object %}
               <tr>
-                <td> {{student.id}} </td>
-                <td> <a href="{%url 'stdmanage:student-detail' student.id%}">{{student.full_name}}</a>
+                <td> 
+                    <a href="{%url 'stdmanage:student-detail' result.student.id%}">{{result.student.full_name}}</a> 
                 </td>
-                <td> {{student.reading_class}} </td>
+                <td> {{result.student.reading_class}} </td>
+                <td> {{result.subject}} </td>
+                <td> {{result.score}} </td>
+                <td> <a target="blank" href="{{result.answer_sheet.url}}">Download</a> </td>
                 <td>
-                  <a href="{%url 'stdmanage:result-create' exam subject student.id%}" target="_blank">
-                      <button class="btn btn-secondary">Add Result</button>
-                  </a>
+                    <a href="{%url "stdmanage:result-update" result.id%}">
+                        <button class="btn btn-secondary">Update</button>
+                    </a>
+                </td>
+                <td>
+                    <a href="{%url "stdmanage:result-delete" result.id%}">
+                        <button class="btn btn-danger">Delete</button>
+                    </a>
                 </td>
               </tr>
             {% endfor %}
           </tbody>
+    
         </table>
       </div>
     </div>
@@ -120,23 +134,23 @@
         <nav aria-label="Page navigation example">
           <ul class="pagination">
             <li class="page-item">
-              <a class="page-link" href="{%url 'stdmanage:result-add-list' prev %}" aria-label="Previous">
+              <a class="page-link" href="{%url 'stdmanage:result-list' prev %}" aria-label="Previous">
                 <span aria-hidden="true">&laquo;</span>
               </a>
             </li>
             
             {% for i in pages %}
               {% if i == current %}
-                <li class="page-item"><a class="page-link active" href="{%url 'stdmanage:result-add-list' i %}">
+                <li class="page-item"><a class="page-link active" href="{%url 'stdmanage:result-list' i %}">
               {% else %}
-                <li class="page-item"><a class="page-link" href="{%url 'stdmanage:result-add-list' i %}">   
+                <li class="page-item"><a class="page-link" href="{%url 'stdmanage:result-list' i %}">   
               {% endif %}
             {{i}}
             </a></li>
             {% endfor %}
             
             <li class="page-item">
-              <a class="page-link" href="{%url 'stdmanage:result-add-list' next %}" aria-label="Next">
+              <a class="page-link" href="{%url 'stdmanage:result-list' next %}" aria-label="Next">
                 <span aria-hidden="true">&raquo;</span>
               </a>
             </li>
@@ -144,6 +158,8 @@
         </nav>
       </div>
     </div>
+
+
     
   </div>
 

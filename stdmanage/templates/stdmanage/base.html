@@ -9,32 +9,48 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-0evHe/X+R7YkIZDRvuzKMRqM+OrBnVFBL6DOitfPri4tjfHxaWutUpFmBp4vmVor" crossorigin="anonymous">
   <!-- JavaScript Bundle with Popper -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha384-pprn3073KE6tl6bjs2QrFaJGz5/SUsLqktiwsUTF55Jfv3qYSDhgCecCxMW52nD2" crossorigin="anonymous"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.9.1/font/bootstrap-icons.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans&display=swap" rel="stylesheet">
+
+  <style>
+    body{
+      font-family: "Open Sans",
+      
+    }
+  </style>
+
   {% block additional_header %}{% endblock additional_header %}
   <title>{% block title %}Home | Student Management{% endblock title %}</title>
 </head>
 <body>
   <nav class="navbar navbar-expand-lg navbar-light bg-light">
     <div class="container-fluid">
-      <a class="navbar-brand" href="#">Student Management</a>
+      <a class="navbar-brand" href="{%url "stdmanage:index"%}">Student Management</a>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
       <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
         <div class="navbar-nav">
-          <a class="nav-link" aria-current="page" href="{%url "stdmanage:index"%}">Home</a>
-          <a class="nav-link" href="{%url "stdmanage:readingclass-list-basic"%}">Manage Classes</a>
-          <a class="nav-link" href="{%url "stdmanage:subject-list-basic"%}">Manage Subjects</a>
-          <a class="nav-link" href="{%url "stdmanage:student-list" 'all' 5 1%}">Students</a>
           <a class="nav-link" href="{%url "stdmanage:student-create"%}">Add Students</a>
-          <a class="nav-link" href="{%url "stdmanage:exam-create"%}" tabindex="-1" aria-disabled="true">Add Exams</a>
-          <a class="nav-link" href="{%url "stdmanage:exam-list-basic"%}" tabindex="-1" aria-disabled="true">Exam List</a>
-          <a class="nav-link" href="{%url "stdmanage:result-add-list-basic"%}" tabindex="-1" aria-disabled="true">Add Result</a>
+          <a class="nav-link" href="{%url "stdmanage:student-list" 1%}">Students List</a>
+          <a class="nav-link" href="{%url "stdmanage:readingclass-list" 1%}">Manage Classes</a>
+          <a class="nav-link" href="{%url "stdmanage:subject-list" 1%}">Manage Subjects</a>
+          <a class="nav-link" href="{%url "stdmanage:exam-create"%}">Add Exams</a>
+          <a class="nav-link" href="{%url "stdmanage:exam-list" 1%}">View Exams</a>
+          <a class="nav-link" href="{%url "stdmanage:result-add-list" 1%}">Add Result</a>
+          <a class="nav-link" href="{%url "stdmanage:result-list" 1%}">View Results</a>
+          
         </div>
+        
       </div>
     </div>
   </nav>
+
+
   {% block body %}
-  %%
+
   {% endblock body %}
 </body>
 </html>
